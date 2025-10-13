@@ -5,6 +5,9 @@ import * as S from "./portfolio.style";
 import openMarketImg from "./images/open-market.png"
 import openMarketImg2 from "./images/open-market2.png"
 import openMarketImg3 from "./images/open-market3.png"
+import deulbada from "./images/home.gif"
+import deulbada2 from "./images/post.gif"
+import deulbada3 from "./images/chat.gif"
 import toDoList from "./images/todo.png"
 
 export default function PortfolioSite() {
@@ -72,7 +75,7 @@ export default function PortfolioSite() {
         demo: null,
         repo: "https://github.com/yourname/deulbada",
       },
-      thumb: "/thumbnails/deulbada.png",
+      thumb: [deulbada, deulbada2, deulbada3],
     },
     {
       title: "개인 토이 프로젝트 — Todo List",
@@ -272,20 +275,59 @@ export default function PortfolioSite() {
                   </S.TwoCol>
 
                   {p.thumb && (
-                    <S.Thumb
-                      onClick={() => openLightbox(p.thumb, `${p.title} 썸네일`)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => e.key === "Enter" && openLightbox(p.thumb, `${p.title} 썸네일`)}
-                      aria-label={`${p.title} 이미지 크게 보기`}
-                    >
-                      <img
-                        src={p.thumb}
-                        alt={`${p.title} 썸네일`}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </S.Thumb>
+                    Array.isArray(p.thumb) ? (
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                          gap: 20,
+                          justifyItems: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        {p.thumb.map((src, i) => (
+                          <S.Thumb
+                            key={i}
+                            onClick={() => openLightbox(src, `${p.title} 썸네일 ${i + 1}`)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => e.key === "Enter" && openLightbox(src, `${p.title} 썸네일 ${i + 1}`)}
+                            aria-label={`${p.title} 이미지 크게 보기 ${i + 1}`}
+                            style={{
+                              width: "100%",
+                              aspectRatio: "7 / 10",     // ← 타일 비율 고정
+                              overflow: "hidden",        // ← 튀어나온 부분 가림
+                              borderRadius: 12
+                            }}
+                          >
+                            <img
+                              src={src}
+                              alt={`${p.title} 썸네일 ${i + 1}`}
+                              loading="lazy"
+                              decoding="async"
+                              style={{ width: "100%", height: "auto", display: "block" }}
+                            />
+                          </S.Thumb>
+                        ))}
+                      </div>
+                    ) : (
+                      <S.Thumb
+                        onClick={() => openLightbox(p.thumb, `${p.title} 썸네일`)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === "Enter" && openLightbox(p.thumb, `${p.title} 썸네일`)}
+                        aria-label={`${p.title} 이미지 크게 보기`}
+                        style={{ width: "50%", margin: "10px auto" }}
+                      >
+                        <img
+                          src={p.thumb}
+                          alt={`${p.title} 썸네일`}
+                          loading="lazy"
+                          decoding="async"
+                          style={{ width: "100%", height: "auto", display: "block" }}
+                        />
+                      </S.Thumb>
+                    )
                   )}
                 </S.ProjectArticle>
               ))}
