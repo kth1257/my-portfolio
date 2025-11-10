@@ -1,14 +1,14 @@
 // src/portfolio.jsx
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { ThemeProvider } from "styled-components";
 import * as S from "./portfolio.style";
-import openMarketImg from "./images/open-market.png"
-import openMarketImg2 from "./images/open-market2.png"
-import openMarketImg3 from "./images/open-market3.png"
-import deulbada from "./images/home.gif"
-import deulbada2 from "./images/post.gif"
-import deulbada3 from "./images/chat.gif"
-import toDoList from "./images/todo.png"
+import openMarketImg from "./images/open-market.png";
+import openMarketImg2 from "./images/open-market2.png";
+import openMarketImg3 from "./images/open-market3.png";
+import deulbada from "./images/home.gif";
+import deulbada2 from "./images/post.gif";
+import deulbada3 from "./images/chat.gif";
+import toDoList from "./images/todo.png";
 
 export default function PortfolioSite() {
   // ---- ▼ 개인 정보 ------------------------------------
@@ -80,8 +80,7 @@ export default function PortfolioSite() {
     {
       title: "개인 토이 프로젝트 — Todo List",
       period: "2025.09",
-      summary:
-        "간단한 투두 리스트 기능 구현 프로젝트",
+      summary: "간단한 투두 리스트 기능 구현 프로젝트",
       stack: ["HTML", "CSS", "JavaScript"],
       role: ["기능 설계 및 구현 전담", "접근성 고려한 키보드 인터랙션"],
       highlights: [
@@ -120,7 +119,6 @@ export default function PortfolioSite() {
     };
     if (lightbox.open) {
       document.addEventListener("keydown", onKey);
-      // 스크롤 잠금
       const prev = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       return () => {
@@ -130,7 +128,7 @@ export default function PortfolioSite() {
     }
   }, [lightbox.open]);
 
-  // 다크모드 토글 (로컬 유지)
+  // 다크모드 토글 (localStorage 유지)
   const [isDark, setIsDark] = useState(true);
   useEffect(() => {
     const saved = localStorage.getItem("site:dark");
@@ -139,6 +137,64 @@ export default function PortfolioSite() {
   useEffect(() => {
     localStorage.setItem("site:dark", isDark ? "1" : "0");
   }, [isDark]);
+
+  // ▼ 테마 전환 시 300ms 동안만 전역 트랜지션 활성화
+  const runThemeTransition = () => {
+    const el = document.documentElement;
+    el.classList.add("theme-transition");
+    window.setTimeout(() => el.classList.remove("theme-transition"), 320);
+  };
+
+  /* ===================== */
+  /*   NAV 스크롤 애니메이션  */
+  /* ===================== */
+  const getHeaderOffset = () => {
+    const v = getComputedStyle(document.documentElement).getPropertyValue("--header-h") || "56px";
+    return parseFloat(v);
+  };
+
+  // 부드럽고 가벼운 이징(rAF)
+  const animatedScrollTo = (toY, duration = 600) => {
+    const startY = window.pageYOffset;
+    const dist = toY - startY;
+    const start = performance.now();
+    const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); // easeInOutCubic
+
+    const step = (now) => {
+      const elapsed = now - start;
+      const t = Math.min(1, elapsed / duration);
+      const y = startY + dist * ease(t);
+      window.scrollTo(0, y);
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+
+  const onNavClick = useCallback((e, id) => {
+    e.preventDefault();
+    const target = document.getElementById(id);
+    if (!target) return;
+
+    const header = getHeaderOffset();
+    const rect = target.getBoundingClientRect();
+    const targetY = Math.max(0, rect.top + window.pageYOffset - header);
+
+    // 스크롤 애니메이션
+    animatedScrollTo(targetY, 650);
+
+    // 스크롤 완료 타이밍에 해시 갱신하여 Title 하이라이트 트리거
+    setTimeout(() => {
+      // 중복 푸시 방지: 동일 앵커면 replace
+      if (location.hash === `#${id}`) {
+        history.replaceState(null, "", `#${id}`);
+      } else {
+        history.pushState(null, "", `#${id}`);
+      }
+      // 접근성: 타이틀 포커스 힌트(시각적 영향 없음)
+      const title = target.querySelector("h2, [data-title]");
+      if (title) title.setAttribute("tabindex", "-1"), title.focus({ preventScroll: true });
+    }, 660);
+  }, []);
 
   const nav = useMemo(
     () => [
@@ -159,13 +215,22 @@ export default function PortfolioSite() {
         {/* NAV */}
         <S.Header>
           <S.Row>
-            <S.Brand href="#home">{me.nameKo}</S.Brand>
+            <S.Brand href="#home" onClick={(e)=>onNavClick(e, "home")}>{me.nameKo}</S.Brand>
             <S.Nav>
               {nav.map((n) => (
-                <S.NavLink key={n.id} href={`#${n.id}`}>{n.label}</S.NavLink>
+                <S.NavLink
+                  key={n.id}
+                  href={`#${n.id}`}
+                  onClick={(e) => onNavClick(e, n.id)}
+                >
+                  {n.label}
+                </S.NavLink>
               ))}
             </S.Nav>
-            <S.ThemeBtn onClick={() => setIsDark((v) => !v)} aria-label="Toggle theme">
+            <S.ThemeBtn
+              onClick={() => { runThemeTransition(); setIsDark((v) => !v); }}
+              aria-label="Toggle theme"
+            >
               {isDark ? "🌙" : "☀️"}
             </S.ThemeBtn>
           </S.Row>
@@ -181,9 +246,15 @@ export default function PortfolioSite() {
                 </S.H1>
                 <S.P>{me.summary}</S.P>
                 <S.RowWrap>
-                  {me.github && <S.GhostBtn href={me.github} target="_blank" rel="noreferrer">GitHub↗</S.GhostBtn>}
-                  {me.velog && <S.GhostBtn href={me.velog} target="_blank" rel="noreferrer">Velog↗</S.GhostBtn>}
-                  {me.notion && <S.GhostBtn href={me.notion} target="_blank" rel="noreferrer">Notion↗</S.GhostBtn>}
+                  {me.github && (
+                    <S.GhostBtn href={me.github} target="_blank" rel="noreferrer">GitHub↗</S.GhostBtn>
+                  )}
+                  {me.velog && (
+                    <S.GhostBtn href={me.velog} target="_blank" rel="noreferrer">Velog↗</S.GhostBtn>
+                  )}
+                  {me.notion && (
+                    <S.GhostBtn href={me.notion} target="_blank" rel="noreferrer">Notion↗</S.GhostBtn>
+                  )}
                 </S.RowWrap>
               </div>
               <S.Card>
@@ -240,33 +311,20 @@ export default function PortfolioSite() {
                       <S.Meta>{p.period} {p.award ? `· ${p.award}` : ""}</S.Meta>
                     </div>
                     <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                      {/* Live 버튼 */}
                       {p.links?.demo && p.links?.liveEnabled !== false ? (
-                        <S.SmallBtn href={p.links.demo} target="_blank" rel="noreferrer">
-                          Live↗
-                        </S.SmallBtn>
+                        <S.SmallBtn href={p.links.demo} target="_blank" rel="noreferrer">Live↗</S.SmallBtn>
                       ) : (
-                        <S.SmallBtn
-                          as="button"
-                          disabled
-                          aria-disabled="true"
-                          title={p.links?.liveReason || "현재 Live 서비스가 중단되었습니다"}
-                        >
+                        <S.SmallBtn as="button" disabled aria-disabled="true" title={p.links?.liveReason || "현재 Live 서비스가 중단되었습니다"}>
                           Live (off)
                         </S.SmallBtn>
                       )}
-
-                      {/* Repo 버튼 */}
                       {p.links?.repo && (
-                        <S.SmallBtn href={p.links.repo} target="_blank" rel="noreferrer">
-                          Repo↗
-                        </S.SmallBtn>
+                        <S.SmallBtn href={p.links.repo} target="_blank" rel="noreferrer">Repo↗</S.SmallBtn>
                       )}
                     </div>
                   </S.ProjectHead>
 
                   <S.P style={{ marginTop: 12, marginBottom: 0 }}>{p.summary}</S.P>
-
                   <S.TagRow>{p.stack.map((s) => <S.Chip key={s}>{s}</S.Chip>)}</S.TagRow>
 
                   <S.TwoCol>
@@ -274,8 +332,8 @@ export default function PortfolioSite() {
                     <S.Ul>{p.highlights.map((h, i) => <li key={i}>{h}</li>)}</S.Ul>
                   </S.TwoCol>
 
-                  {p.thumb && (
-                    Array.isArray(p.thumb) ? (
+                  {p.thumb &&
+                    (Array.isArray(p.thumb) ? (
                       <div
                         style={{
                           display: "grid",
@@ -293,20 +351,9 @@ export default function PortfolioSite() {
                             tabIndex={0}
                             onKeyDown={(e) => e.key === "Enter" && openLightbox(src, `${p.title} 썸네일 ${i + 1}`)}
                             aria-label={`${p.title} 이미지 크게 보기 ${i + 1}`}
-                            style={{
-                              width: "100%",
-                              aspectRatio: "7 / 10",     // ← 타일 비율 고정
-                              overflow: "hidden",        // ← 튀어나온 부분 가림
-                              borderRadius: 12
-                            }}
+                            style={{ width: "100%", aspectRatio: "7 / 10", overflow: "hidden", borderRadius: 12 }}
                           >
-                            <img
-                              src={src}
-                              alt={`${p.title} 썸네일 ${i + 1}`}
-                              loading="lazy"
-                              decoding="async"
-                              style={{ width: "100%", height: "auto", display: "block" }}
-                            />
+                            <img src={src} alt={`${p.title} 썸네일 ${i + 1}`} loading="lazy" decoding="async" style={{ width: "100%", height: "auto", display: "block" }} />
                           </S.Thumb>
                         ))}
                       </div>
@@ -319,16 +366,9 @@ export default function PortfolioSite() {
                         aria-label={`${p.title} 이미지 크게 보기`}
                         style={{ width: "50%", margin: "10px auto" }}
                       >
-                        <img
-                          src={p.thumb}
-                          alt={`${p.title} 썸네일`}
-                          loading="lazy"
-                          decoding="async"
-                          style={{ width: "100%", height: "auto", display: "block" }}
-                        />
+                        <img src={p.thumb} alt={`${p.title} 썸네일`} loading="lazy" decoding="async" style={{ width: "100%", height: "auto", display: "block" }} />
                       </S.Thumb>
-                    )
-                  )}
+                    ))}
                 </S.ProjectArticle>
               ))}
             </div>
@@ -370,13 +410,10 @@ export default function PortfolioSite() {
         <S.Footer>
           <S.Container>© {new Date().getFullYear()} {me.nameKo}. All rights reserved.</S.Container>
         </S.Footer>
-                {lightbox.open && (
+
+        {lightbox.open && (
           <S.LightboxOverlay onClick={closeLightbox} role="dialog" aria-modal="true">
-            <S.LightboxImg
-              src={lightbox.src}
-              alt={lightbox.alt}
-              onClick={(e) => e.stopPropagation()} // 이미지 클릭은 닫히지 않도록
-            />
+            <S.LightboxImg src={lightbox.src} alt={lightbox.alt} onClick={(e) => e.stopPropagation()} />
             <S.LightboxClose onClick={closeLightbox} aria-label="닫기">✕</S.LightboxClose>
           </S.LightboxOverlay>
         )}
