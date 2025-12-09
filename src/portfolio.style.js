@@ -430,3 +430,106 @@ export const Footer = styled.footer`
     color:${({theme})=>theme.subtle};
   }
 `;
+// =====================
+//    DESIGN & MEDIA
+// =====================
+export const DesignBlock = styled(Card)`
+  margin-top: 16px;
+`;
+
+export const PSGrid = styled.div`
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: ${({ theme }) =>
+      theme.name === "dark"
+        ? "rgba(255,255,255,0.2)"
+        : "rgba(17,24,39,0.18)"};
+  }
+`;
+
+export const GalleryImgBtn = styled.button`
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: ${({ theme }) => theme.shadow};
+  transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+
+  /* 카드 자체 사이즈를 고정해서 줄 맞추기 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;            /* 원하는 높이로 조절 (240~280 사이) */
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px);
+    filter: saturate(1.05);
+  }
+`;
+
+
+export const SliderWrap = styled.div`
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: nowrap;
+`;
+
+export const SliderBtn = styled.button`
+  ${gradientBorder};
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  background: ${({ theme }) => theme.cardBg};
+  transition: transform 0.16s ease, filter 0.16s ease;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-1px);
+    filter: saturate(1.05);
+  }
+`;
+
+export const SliderViewport = styled.div`
+  flex: 1;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const SliderMeta = styled.span`
+  font-size: 12px;
+  color: ${({ theme }) => theme.subtle};
+`;
