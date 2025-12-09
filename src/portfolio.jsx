@@ -16,7 +16,10 @@ export default function PortfolioSite() {
     nameKo: "김태훈",
     role: "웹퍼블리셔, 프론트엔드 개발 지망생",
     summary:
-      "신구대학교 IT소프트웨어학과 졸업(2019 ~ 2024). 2024년 MBC컴퓨터학원 UI/UX 웹디자인 과정을 통해 Photoshop/Illustrator/Premiere Pro/After Effects를 학습했고, 2025년에는 프론트엔드 개발에 집중하여 모두의연구소 자바스크립트 웹 풀스택 개발자 과정 2차 미니프로젝트 대상 및 파이널 우수상을 수상했습니다.",
+  "신구대학교 IT소프트웨어학과 졸업(2019~2024).\n" +
+  "2024년에는 MBC 컴퓨터 학원에서 UI/UX 웹디자인 과정을 배웠습니다.\n" +
+  "2025년에는 프론트엔드 개발에 집중하며 모두의연구소 자바스크립트 웹 풀스택 과정에서 2차 미니프로젝트 ‘대상’, 파이널 프로젝트 ‘우수상’을 수상했습니다.",
+
     location: "서울 강동구 강일동",
     email: "xognswldk@gmail.com",
     github: "https://github.com/kth1257",
@@ -29,7 +32,7 @@ export default function PortfolioSite() {
     { title: "Frontend", items: ["React", "Vite", "Styled-Components"] },
     {
       title: "Tools",
-      items: ["Git/GitHub", "Vercel/Netlify"],
+      items: ["Git/GitHub"],
     },
     {
       title: "Design / Media",
@@ -483,7 +486,7 @@ export default function PortfolioSite() {
               </S.Ul>
                         
               <p>
-                디자인과 개발을 함께 이해하는 웹 퍼블리셔 · 프론트엔드 개발자로 성장하는 것을 목표로 합니다.
+                디자인과 개발을 함께 이해하는 웹 퍼블리셔 · 프론트엔드 개발자로 성장하고자 합니다.
               </p>
             </S.Prose>
           </S.Container>
@@ -736,31 +739,32 @@ export default function PortfolioSite() {
                 </S.SliderBtn>
 
                 <S.SliderViewport>
-                  {illustratorImages.length > 0 && (
-                    <>
-                      <S.GalleryImgBtn
-                        type="button"
-                        onClick={() =>
-                          openLightbox(
-                            illustratorImages[ilIndex].src,
-                            illustratorImages[ilIndex].alt
-                          )
-                        }
-                        aria-label={`${illustratorImages[ilIndex].alt} 크게 보기`}
-                      >
-                        <img
-                          src={illustratorImages[ilIndex].src}
-                          alt={`${illustratorImages[ilIndex].alt} (${ilIndex + 1}/${illustratorImages.length})`}
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      </S.GalleryImgBtn>
-                      <S.SliderMeta>
-                        {ilIndex + 1} / {illustratorImages.length}
-                      </S.SliderMeta>
-                    </>
-                  )}
-                </S.SliderViewport>
+  {illustratorImages.length > 0 && (
+    <>
+      <S.IlGalleryImgBtn
+              type="button"
+              onClick={() =>
+                openLightbox(
+                  illustratorImages[ilIndex].src,
+                  illustratorImages[ilIndex].alt
+                )
+              }
+              aria-label={`${illustratorImages[ilIndex].alt} 크게 보기`}
+            >
+              <img
+                src={illustratorImages[ilIndex].src}
+                alt={`${illustratorImages[ilIndex].alt} (${ilIndex + 1}/${illustratorImages.length})`}
+                loading="lazy"
+                decoding="async"
+              />
+            </S.IlGalleryImgBtn>
+            <S.SliderMeta>
+              {ilIndex + 1} / {illustratorImages.length}
+            </S.SliderMeta>
+          </>
+        )}
+      </S.SliderViewport>
+
 
                 <S.SliderBtn
                   type="button"

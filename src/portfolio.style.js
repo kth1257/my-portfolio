@@ -250,6 +250,7 @@ export const P = styled.p`
   margin: 16px 0 0;
   font-size: clamp(15px, 2.4vw, 18px);
   color: ${({theme})=>theme.subtle};
+  white-space: pre-line;
 `;
 
 export const RowWrap = styled.div`
@@ -489,6 +490,16 @@ export const GalleryImgBtn = styled.button`
   }
 `;
 
+export const IlGalleryImgBtn = styled(GalleryImgBtn)`
+  height: 520px;
+
+  img {
+    object-fit: contain;
+    background: #0002;
+  }
+`;
+
+
 
 export const SliderWrap = styled.div`
   margin-top: 16px;
@@ -522,7 +533,8 @@ export const SliderBtn = styled.button`
 
 export const SliderViewport = styled.div`
   flex: 1;
-  max-width: 520px;
+  max-width: 640px;
+  max-height: 800px;
   display: flex;
   flex-direction: column;
   align-items: center;
